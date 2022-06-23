@@ -1,0 +1,34 @@
+version: "2.1"
+services:
+
+  duplicati:
+    image: jhonwg/duplicati-rclone-cron:1.0
+    container_name: duplicati
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=America/Bogota
+      - CLI_ARGS= #optional
+    volumes:
+      - ./datos/config:/config
+      - /path_to_backup:/source/path_to_backup
+      - /backups:/backups
+    ports:
+      - '127.0.0.1:8200:8200'
+    restart: unless-stopped
+
+  rclone:
+    image: jhonwg/duplicati-rclone-cron:1.0
+    container_name: rclone
+    entrypoint: ["/start.sh"]
+    environment:
+      - RNAME=b2
+      - BUCKET=backups-pc-1
+      - CRON_SCHEDULE=0 */1 * * *
+      - PUID=0
+      - PGID=0
+    volumes:
+      - ./datos/rclone:/root/.config/rclone/
+      - /backups:/backups
+    restart: unless-stopped
+
